@@ -1,3 +1,4 @@
+import base64
 import logging
 
 import numpy as np
@@ -11,12 +12,13 @@ app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
 def stream():
     # 프레임 받아 처리
-    frame_data = bytes(request.data)
-    if not frame_data:
+    encoded_data = bytes(request.data)
+    if not encoded_data:
         return jsonify({'error': 'No data provided'}), 400
 
     # 바이너리 데이터를 이미지로 변환
-    image = Image.open(io.BytesIO(frame_data))
+    decoded_data = base64.b64decode(encoded_data)
+    image = Image.open(io.BytesIO(decoded_data))
     image_data = np.array(image)
     # np_arr = np.frombuffer(frame_data, np.uint8)
     # frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
