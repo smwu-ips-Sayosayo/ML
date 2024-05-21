@@ -16,12 +16,12 @@ def stream():
     if not encoded_data:
         return jsonify({'error': 'No data provided'}), 400
 
-    # 바이너리 데이터를 이미지로 변환
     decoded_data = base64.b64decode(encoded_data)
     image = Image.open(io.BytesIO(decoded_data))
     image_data = np.array(image)
     # np_arr = np.frombuffer(frame_data, np.uint8)
     # frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
 
     # 객체 감지 , 손 인식
     processed_frame = camera2.process_stream(image_data)
