@@ -1,6 +1,6 @@
 import numpy as np
 from flask import Flask, Response, request, json, jsonify
-
+from PIL import Image
 import cv2
 import camera2
 import io
@@ -10,11 +10,17 @@ app = Flask(__name__)
 def stream():
     # 프레임 받아 처리
     frame_data = request.data
-    np_arr = np.frombuffer(frame_data, np.uint8)
-    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    if not frame_data:
+        return jsonify({'error': 'No data provided'}), 400
+
+        # 바이너리 데이터를 이미지로 변환
+    image = Image.open(io.BytesIO(frame_data))
+    image = np.array(image)
+    # np_arr = np.frombuffer(frame_data, np.uint8)
+    # frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
     # 객체 감지 , 손 인식
-    processed_frame = camera2.process_stream(frame)
+    processed_frame = camera2.process_stream(image)
 
 
 
