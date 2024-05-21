@@ -20,10 +20,9 @@ def stream():
     return jsonify(response)
 
 
-@app.route("/test", methods=['POST'])
+@app.route("/test", methods=['GET'])
 def versionCheck():
-    # params = request.get_json()
-    # print("받은 Json 데이터 ", params)
+    print("받은 Json 데이터 ")
     response = {
         "result": "ok"
     }
