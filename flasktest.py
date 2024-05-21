@@ -18,20 +18,12 @@ def stream():
             return jsonify({'error': 'No data provided'}), 400
 
         encoded_image_data = data['imageData']
-
-        # base64 디코딩
         decoded_image_data = base64.b64decode(encoded_image_data)
-
-        # 디버깅 로그 추가
-        print(f"Decoded data length: {len(decoded_image_data)}")
-
         # 바이트 데이터를 numpy 배열로 변환
-        image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
+        # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
 
-        # 예상하는 이미지 포맷으로 변환
         image = Image.open(io.BytesIO(decoded_image_data))
         image_data = np.array(image)
-
         # PIL 이미지를 OpenCV 형식으로 변환
         image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
 
