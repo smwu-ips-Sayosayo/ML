@@ -12,15 +12,16 @@ def stream():
     frame_data = request.data
     np_arr = np.frombuffer(frame_data, np.uint8)
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
     # 객체 감지 , 손 인식
     processed_frame = camera2.process_stream(frame)
 
-    _, buffer = cv2.imencode('.jpg', processed_frame)
-    buffer = io.BytesIO(buffer)
+
 
     # 결과 반환
     response = {
-        "result": "카메라 실행 완료"
+        "result": "카메라 실행이 완료됐습니다",
+        "data": processed_frame
     }
     return jsonify(response)
 
