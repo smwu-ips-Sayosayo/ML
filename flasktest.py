@@ -12,28 +12,24 @@ app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
 def stream():
     # 프레임 받아 처리
-    encoded_data = bytes(request.data)
+    encoded_data = request.data
     if not encoded_data:
         return jsonify({'error': 'No data provided'}), 400
 
-    decoded_data = base64.b64decode(encoded_data)
-    image = Image.open(io.BytesIO(decoded_data))
+    # decoded_data = base64.b64decode(encoded_data)
+    image = Image.open(io.BytesIO(encoded_data))
     image_data = np.array(image)
-    # np_arr = np.frombuffer(frame_data, np.uint8)
-    # frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
 
     # 객체 감지 , 손 인식
     processed_frame = camera2.process_stream(image_data)
-
-
-
     # 결과 반환
     response = {
         "result": "카메라 실행이 완료됐습니다",
         "data": processed_frame
     }
     return jsonify(response)
+
 
 
 @app.route("/test", methods=['GET'])
