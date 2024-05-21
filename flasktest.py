@@ -4,6 +4,8 @@ from PIL import Image
 import cv2
 import camera2
 import io
+import logging
+
 
 app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
@@ -12,24 +14,28 @@ def stream():
     frame_data = bytes(request.data)
     if not frame_data:
         return jsonify({'error': 'No data provided'}), 400
+    try:
+        # 파일로 데이터 로깅
+        with open("received_data.jpg", "wb") as f:
+            f.write(frame_data)
 
-        # 바이너리 데이터를 이미지로 변환
-    image = Image.open(io.BytesIO(frame_data))
-    image_data = np.array(image)
-    # np_arr = np.frombuffer(frame_data, np.uint8)
-    # frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        # 바이너리 데이터를 이미지 객체로 변환
+        image = Image.open(io.BytesIO(frame_data))
+        image_np = np.array(image)
 
-    # 객체 감지 , 손 인식
-    processed_frame = camera2.process_stream(image_data)
+        if image_np.ndim != 3 or image_np.shape[2] != 3:
+            logging.error("Invalid image format")
+            raise ValueError("Invalid image format: Expected 3D array with 3 channels")
 
-
-
-    # 결과 반환
-    response = {
-        "result": "카메라 실행이 완료됐습니다",
-        "data": processed_frame
-    }
-    return jsonify(response)
+        processed_frame = camera2.process_stream(image_np)
+        response = {
+            "result": "카메라 실행이 완료됐습니다",
+            "data": processed_frame
+        }
+        return jsonify(response)
+    except Exception as e:
+        logging.error(f"Error processing image: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route("/test", methods=['GET'])
