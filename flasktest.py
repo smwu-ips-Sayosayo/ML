@@ -8,7 +8,6 @@ import camera2
 import io
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG)
 @app.route('/stream', methods=['POST'])
 def stream():
     # 프레임 받아 처리
@@ -42,9 +41,6 @@ def versionCheck():
         "result": "ok"
     }
     return jsonify(response)
-from flask import Flask, request
-
-app = Flask(__name__)
 
 @app.route('/video', methods=['POST'])
 def receive_image():
