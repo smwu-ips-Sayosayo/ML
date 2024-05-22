@@ -8,7 +8,7 @@ model = YOLO('snack.pt')
 
 # Mediapipe 손 인식 초기화
 mpHands = mp.solutions.hands
-my_hands = mpHands.Hands()
+my_hands = mpHands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=0.5)
 mpDraw = mp.solutions.drawing_utils
 
 def dist(x1, y1, x2, y2):
