@@ -21,7 +21,6 @@ def stream():
 
         image_data = request.data
         if image_data:
-            print(f"Received image data length: {len(image_data)}")
             try:
                 # Bytes 데이터를 이미지로 변환
                 image = Image.open(io.BytesIO(image_data))
@@ -29,6 +28,7 @@ def stream():
                 image = np.array(image)
                 # image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 processed_frame = camera2.process_stream(image)
+                print("processed frame = "+ processed_frame)
                 return jsonify({"message": processed_frame}), 200
             except Exception as e:
                 print(f"Error processing image: {e}")
