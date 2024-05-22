@@ -6,7 +6,7 @@ from flask import Flask, Response, request, json, jsonify
 from PIL import Image
 import cv2
 import camera2
-from io import BytesIO
+import os
 
 app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
@@ -24,6 +24,7 @@ def stream():
         temp_image_path = 'temp_image.png'
         with open(temp_image_path, 'wb') as file:
             file.write(decoded_image_data)
+            print(f"Saved image size: {os.path.getsize(temp_image_path)} bytes")
 
         image = Image.open(temp_image_path)
         image_data = np.array(image)
