@@ -20,17 +20,16 @@ def stream():
         decoded_image_data = base64.b64decode(encoded_image_data)
         # 바이트 데이터를 numpy 배열로 변환
         # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
-
         # image = Image.open(file.stream)
-        image = BytesIO(decoded_image_data)
-        image = Image.open(image)
+        temp_image_path = 'temp_image.png'
+        with open(temp_image_path, 'wb') as file:
+            file.write(decoded_image_data)
 
+        image = Image.open(temp_image_path)
         image_data = np.array(image)
-
-
-        # PIL 이미지를 OpenCV 형식으로 변환
         image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-        # 디버깅 로그 추가
+
+        # image = BytesIO(decoded_image_data)
         print(f"Image data shape: {image_data.shape}")
         # 객체 감지, 손 인식
         processed_frame = camera2.process_stream(image_data)
