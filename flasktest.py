@@ -1,5 +1,6 @@
 import base64
 import logging
+import io
 
 import numpy as np
 from flask import Flask, Response, request, json, jsonify
@@ -15,25 +16,19 @@ def stream():
         # file = request.files['image']
         # # JSON 데이터 수신
         data = request.get_json()
-
         encoded_image_data = data['image']
         decoded_image_data = base64.b64decode(encoded_image_data)
-        # 바이트 데이터를 numpy 배열로 변환
-        # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
-        # image = Image.open(file.stream)
-        temp_image_path = 'temp_image.png'
-        with open(temp_image_path, 'wb') as file:
-            file.write(decoded_image_data)
-            print(f"Saved image size: {os.path.getsize(temp_image_path)} bytes")
 
-        image = Image.open(temp_image_path)
-        image_data = np.array(image)
-        image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
+        # temp_image_path = 'temp_image.png'
+        # with open(temp_image_path, 'wb') as file:
+        #     file.write(decoded_image_data)
+        #     print(f"Saved image size: {os.path.getsize(temp_image_path)} bytes")
 
-        # image = BytesIO(decoded_image_data)
-        print(f"Image data shape: {image_data.shape}")
-        # 객체 감지, 손 인식
-        processed_frame = camera2.process_stream(image_data)
+        image = Image.open(io.BytesIO(decoded_image_data))
+        image = np.array(image)
+        # image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        processed_frame = camera2.process_stream(image)
 
         # 결과 반환
         response = {
