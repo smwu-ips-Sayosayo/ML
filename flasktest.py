@@ -20,7 +20,7 @@ def stream():
                 image = Image.open(io.BytesIO(image_data))
                 image.show()  # 이미지를 열어 확인
                 image = np.array(image)
-                # image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 # 이미지 저장
                 save_path = 'received_image.jpg'
                 cv2.imwrite(save_path, image)
