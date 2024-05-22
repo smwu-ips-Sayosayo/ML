@@ -91,7 +91,7 @@ def process_stream(frame):
     if overlapping_objects:
         label = "grab: " + ", ".join(overlapping_objects)
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        return overlapping_objects
+        return list(overlapping_objects)
     else:
-        return "none!"
+        return ["none!"]
 
