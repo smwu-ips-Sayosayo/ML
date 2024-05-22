@@ -37,13 +37,21 @@ def process_stream(frame):
     # YOLO 객체 검출
     yolo_results = model(frame)
 
+    # 객체 바운딩 박스 그리기
+    detected_objects = []
+    for result in yolo_results[0].boxes:
+        x1, y1, x2, y2 = map(int, result.xyxy[0])
+        conf = result.conf[0]
+        cls = int(result.cls[0])
+        # 객체 바운딩 박스 그리기
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        # 객체 라벨 표시
+        label = f'{model.names[cls]} {conf:.2f}'
+        cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+        detected_objects.append(model.names[cls])
     # 손 인식 및 바운딩 박스 그리기
     overlapping_objects = set()
-    recognized_objects = []
-    hand_present = False
-
     if results.multi_hand_landmarks:
-        hand_present = True
         for handLms in results.multi_hand_landmarks:
             # 바운딩 박스 좌표 초기화
             x_min, y_min = w, h
@@ -56,6 +64,28 @@ def process_stream(frame):
                 x_max = max(x_max, x)
                 y_max = max(y_max, y)
 
+            # 바운딩 박스 그리기
+            cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+
+            open = [False, False, False, False]
+            for i in range(4):
+                open[i] = dist(handLms.landmark[0].x, handLms.landmark[0].y,
+                               handLms.landmark[compareIndex[i][0]].x, handLms.landmark[compareIndex[i][0]].y) < \
+                          dist(handLms.landmark[0].x, handLms.landmark[0].y,
+                               handLms.landmark[compareIndex[i][1]].x, handLms.landmark[compareIndex[i][1]].y)
+
+            test_x = handLms.landmark[0].x * w
+            test_y = handLms.landmark[0].y * h
+            for i in range(len(gesture)):
+                flag = True
+                for j in range(4):
+                    if gesture[i][j] != open[j]:
+                        flag = False
+                if flag:
+                    cv2.putText(frame, gesture[i][4], (round(test_x) - 50, round(test_y) - 250),
+                                cv2.FONT_HERSHEY_PLAIN, 4, (0, 0, 0), 4)
+            mpDraw.draw_landmarks(frame, handLms, mpHands.HAND_CONNECTIONS)
+
             # 손과 겹치는 객체 검출
             for result in yolo_results[0].boxes:
                 x1, y1, x2, y2 = map(int, result.xyxy[0])
@@ -63,7 +93,6 @@ def process_stream(frame):
                 cls = int(result.cls[0])
                 if x1 < x_max and x2 > x_min and y1 < y_max and y2 > y_min:
                     overlapping_objects.add(model.names[cls])
-                    recognized_objects.append(model.names[cls])
 
     # 겹치는 객체들을 가로로 나열하여 표시
     if overlapping_objects:
@@ -71,5 +100,5 @@ def process_stream(frame):
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         return overlapping_objects
     else:
-        return ','.join(recognized_objects)
+        return ','.join(detected_objects)
 
