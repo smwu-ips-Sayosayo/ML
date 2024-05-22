@@ -6,7 +6,7 @@ from flask import Flask, Response, request, json, jsonify
 from PIL import Image
 import cv2
 import camera2
-import io
+from io import BytesIO
 
 app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
@@ -22,7 +22,9 @@ def stream():
         # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
 
         # image = Image.open(file.stream)
-        image = Image.open(io.BytesIO(decoded_image_data))
+        image = BytesIO(decoded_image_data)
+        image = Image.open(image)
+
         image_data = np.array(image)
 
 
