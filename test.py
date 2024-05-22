@@ -13,12 +13,6 @@ app = Flask(__name__)
 @app.route('/stream', methods=['POST'])
 def stream():
     try:
-        # file = request.files['image']
-        # # JSON 데이터 수신
-        # data = request.get_json()
-        # encoded_image_data = data['image']
-        # decoded_image_data = base64.b64decode(encoded_image_data)
-
         image_data = request.data
         if image_data:
             try:
@@ -28,29 +22,16 @@ def stream():
                 image = np.array(image)
                 # image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 processed_frame = camera2.process_stream(image)
-                print("processed frame = "+ processed_frame)
+                print("Processed frame objects:", processed_frame)  # 추가된 디버깅 메시지
                 return jsonify({"message": processed_frame}), 200
             except Exception as e:
                 print(f"Error processing image: {e}")
                 return jsonify({"error": str(e)}), 400
-
-
-        # temp_image_path = 'temp_image.png'
-        # with open(temp_image_path, 'wb') as file:
-        #     file.write(decoded_image_data)
-        #     print(f"Saved image size: {os.path.getsize(temp_image_path)} bytes")
-
-        # image = Image.open(io.BytesIO(decoded_image_data))
-        # image = np.array(image)
-        # # image= cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-        # processed_frame = camera2.process_stream(image)
-
         # 결과 반환
             response = {
                 "result": "카메라 실행이 완료됐습니다",
                 "data": processed_frame
-        }
+            }
         return jsonify(response)
     except Exception as e:
         # 오류가 발생할 경우 오류 메시지와 함께 500 응답 반환

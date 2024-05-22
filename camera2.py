@@ -28,10 +28,17 @@ def process_stream(frame):
     imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = my_hands.process(imgRGB)
 
+    # Mediapipe 결과 디버깅 출력
+    if results.multi_hand_landmarks:
+        print("Mediapipe Hand Landmarks detected")
+    else:
+        print("No Hand Landmarks detected")
+
     # YOLO 객체 검출
     yolo_results = model(frame)
 
     # 객체 바운딩 박스 그리기
+    detected_objects = []
     for result in yolo_results[0].boxes:
         x1, y1, x2, y2 = map(int, result.xyxy[0])
         conf = result.conf[0]
@@ -41,7 +48,7 @@ def process_stream(frame):
         # 객체 라벨 표시
         label = f'{model.names[cls]} {conf:.2f}'
         cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
+        detected_objects.append(model.names[cls])
     # 손 인식 및 바운딩 박스 그리기
     overlapping_objects = set()
     if results.multi_hand_landmarks:
@@ -93,5 +100,5 @@ def process_stream(frame):
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         return overlapping_objects
     else:
-        return " "
+        return detected_objects
 
