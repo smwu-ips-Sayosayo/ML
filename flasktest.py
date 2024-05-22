@@ -3,7 +3,7 @@ import logging
 import io
 
 import numpy as np
-from flask import Flask, Response, request, json, jsonify
+from flask import Flask, Response, request, json, jsonify,send_file
 from PIL import Image
 import cv2
 import camera2
@@ -42,6 +42,16 @@ def stream():
         # 오류가 발생할 경우 오류 메시지와 함께 500 응답 반환
         logging.error(f"Error processing image: {e}")
         return jsonify({'error': str(e)}), 500
+@app.route('/get_image', methods=['GET'])
+def get_image():
+    try:
+        image_path = 'received_image.jpg'
+        if os.path.exists(image_path):
+            return send_file(image_path, mimetype='image/jpeg')
+        else:
+            return jsonify({"error": "Image not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
