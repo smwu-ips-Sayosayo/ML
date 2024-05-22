@@ -9,64 +9,65 @@ import camera2
 import io
 
 app = Flask(__name__)
-@app.route('/stream', methods=['POST'])
-def stream():
-    try:
-        # JSON 데이터 수신
-        data = request.get_json()
-        if not data or 'imageData' not in data:
-            return jsonify({'error': 'No data provided'}), 400
-
-        encoded_image_data = data['imageData']
-        decoded_image_data = base64.b64decode(encoded_image_data)
-        # 바이트 데이터를 numpy 배열로 변환
-        # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
-
-        image = Image.open(io.BytesIO(decoded_image_data))
-        image_data = np.array(image)
-        # PIL 이미지를 OpenCV 형식으로 변환
-        image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-
-        # 디버깅 로그 추가
-        print(f"Image data shape: {image_data.shape}")
-
-        # 객체 감지, 손 인식
-        processed_frame = camera2.process_stream(image_data)
-
-        # 결과 반환
-        response = {
-            "result": "카메라 실행이 완료됐습니다",
-            "data": processed_frame
-        }
-        return jsonify(response)
-    except Exception as e:
-        # 오류가 발생할 경우 오류 메시지와 함께 500 응답 반환
-        logging.error(f"Error processing image: {e}")
-        return jsonify({'error': str(e)}), 500
-#
 # @app.route('/stream', methods=['POST'])
 # def stream():
-#     # 프레임 받아 처리
-#     encoded_data = request.data
-#     if not encoded_data:
-#         return jsonify({'error': 'No data provided'}), 400
-#     decoded_data = base64.b64decode(encoded_data)
-#     logging.info("Data decoded successfully")
+#     try:
+#         file = request.files['image']
+#         # # JSON 데이터 수신
+#         # data = request.get_json()
 #
-#     image = Image.open(io.BytesIO(decoded_data))
-#     image_data = np.array(image)
-#     image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
-#     logging.info("Image loaded and color converted")
+#         encoded_image_data = data['imageData']
+#         decoded_image_data = base64.b64decode(encoded_image_data)
+#         # 바이트 데이터를 numpy 배열로 변환
+#         # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
 #
-#     # 객체 감지 , 손 인식
-#     processed_frame = camera2.process_stream(image_data)
-#     # 결과 반환
-#     response = {
-#         "result": "카메라 실행이 완료됐습니다",
-#         "data": processed_frame
-#     }
-#     return jsonify(response)
+#         image = Image.open(file.stream)
+#         # image = Image.open(io.BytesIO(decoded_image_data))
+#         image_data = np.array(image)
+#         # PIL 이미지를 OpenCV 형식으로 변환
+#         image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
 #
+#         # 디버깅 로그 추가
+#         print(f"Image data shape: {image_data.shape}")
+#
+#         # 객체 감지, 손 인식
+#         processed_frame = camera2.process_stream(image_data)
+#
+#         # 결과 반환
+#         response = {
+#             "result": "카메라 실행이 완료됐습니다",
+#             "data": processed_frame
+#         }
+#         return jsonify(response)
+#     except Exception as e:
+#         # 오류가 발생할 경우 오류 메시지와 함께 500 응답 반환
+#         logging.error(f"Error processing image: {e}")
+#         return jsonify({'error': str(e)}), 500
+#
+@app.route('/stream', methods=['POST'])
+def stream():
+    # 프레임 받아 처리
+    frame_data = request.data
+    # if not encoded_data:
+    #     return jsonify({'error': 'No data provided'}), 400
+    # decoded_data = base64.b64decode(encoded_data)
+    # logging.info("Data decoded successfully")
+    np_arr= np.frombuffer(frame_data,np.uint8)
+    # image = Image.open(io.BytesIO(decoded_data))
+    image = cv2.imdecode(np_arr,cv2.IMREAD_COLOR)
+    # image_data = np.array(image)
+    # image_data = cv2.cvtColor(image_data, cv2.COLOR_RGB2BGR)
+    # logging.info("Image loaded and color converted")
+
+    # 객체 감지 , 손 인식
+    processed_frame = camera2.process_stream(image)
+    # 결과 반환
+    response = {
+        "result": "카메라 실행이 완료됐습니다",
+        "data": processed_frame
+    }
+    return jsonify(response)
+
 
 
 @app.route("/test", methods=['GET'])
