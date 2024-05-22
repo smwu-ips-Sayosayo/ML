@@ -100,5 +100,5 @@ def process_stream(frame):
         cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         return overlapping_objects
     else:
-        return detected_objects
+        return ','.join(detected_objects)
 
