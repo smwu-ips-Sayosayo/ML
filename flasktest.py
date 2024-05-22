@@ -16,7 +16,7 @@ def stream():
         # # JSON 데이터 수신
         data = request.get_json()
 
-        encoded_image_data = data['imageData']
+        encoded_image_data = data['image']
         decoded_image_data = base64.b64decode(encoded_image_data)
         # 바이트 데이터를 numpy 배열로 변환
         # image_data = np.frombuffer(decoded_image_data, dtype=np.uint8)
