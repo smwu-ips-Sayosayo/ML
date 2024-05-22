@@ -8,7 +8,7 @@ model = YOLO('snack.pt')
 
 # Mediapipe 손 인식 초기화
 mpHands = mp.solutions.hands
-my_hands = mpHands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=0.5)
+my_hands = mpHands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=0.75)
 mpDraw = mp.solutions.drawing_utils
 
 def dist(x1, y1, x2, y2):
@@ -49,6 +49,7 @@ def process_stream(frame):
         label = f'{model.names[cls]} {conf:.2f}'
         cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
         detected_objects.append(model.names[cls])
+
     # 손 인식 및 바운딩 박스 그리기
     overlapping_objects = set()
     if results.multi_hand_landmarks:
@@ -101,4 +102,3 @@ def process_stream(frame):
         return overlapping_objects
     else:
         return ','.join(detected_objects)
-
